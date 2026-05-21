@@ -42,7 +42,7 @@ CREATE TABLE matches(
     stadium VARCHAR(100) NOT NULL,
     match_status VARCHAR(30) DEFAULT 'Scheduled',
     win_team_id INT,
-    
+    FOREIGN KEY (win_team_id) REFERENCES teams(team_id) ON DELETE SET NULL,
     FOREIGN KEY (home_team_id) REFERENCES teams(team_id),
     FOREIGN KEY (away_team_id) REFERENCES teams(team_id)
 );
@@ -84,7 +84,7 @@ INSERT INTO players VALUES
 (5, 'Nguyễn Quang Hải', 10, 'Forward', 55000000, 3);
 
 INSERT INTO matches VALUES
-(1, 1, 2, '2026-05-10 19:00', 'Etihad Stadium', 'Finished', 1),
+(1, 1, 2, '2026-05-10 19:00', 'Etihad Stadium', 'Finished', NULL),
 (2, 3, 4, '2026-05-12 18:30', 'Hang Đay Stadium', 'Finished', 3),
 (3, 5, 1, '2026-05-15 20:00', 'Thiên Trường Stadium', 'Scheduled', 5),
 (4, 2, 3, '2026-05-20 21:00', 'Santiago Bernabeu', 'Scheduled', 2),
@@ -184,5 +184,25 @@ BEGIN
 END //
 DELIMITER ;
 
--- Câu 2: 
+-- Câu 2:
 
+-- Phần 7: 
+-- Câu 1: Viết stored procedure nhận vào mã cầu thủ và trả về thông báo: Excellent nếu goals > 20, good nếu goals từ 10 đến 20, average nếu số bàn thắng < 10
+DELIMITER //
+CREATE PROCEDURE sp_player_performance(IN p_player_id INT)
+BEGIN
+    DECLARE total_goals INT DEFAULT 0;
+    SELECT SUM(goals)
+    INTO total_goals
+    FROM player_statistics
+    WHERE player_id = p_player_id;
+    SET total_goals = IFNULL(total_goals, 0);
+    IF total_goals > 20 THEN
+        SELECT 'Excellent' AS performance;
+    ELSEIF total_goals BETWEEN 10 AND 20 THEN
+        SELECT 'Good' AS performance;
+    ELSE
+        SELECT 'Average' AS performance;
+    END IF;
+END //
+DELIMITER ;
